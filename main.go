@@ -27,15 +27,11 @@ func handleExit() {
 	}
 }
 
-func main() {
-	defer handleExit()
-	if len(os.Args) < 2 {
-		fmt.Println("Please supply a filename as an argument")
-		panic(exit{1})
-	}
-
-	fmt.Println("Opening", os.Args[1])
-	file, err := os.Open(os.Args[1])
+// setupGraph parses the file contents and creates a graph
+// representing the file
+func setupGraph(filename string) *Graph {
+	fmt.Println("Opening", filename)
+	file, err := os.Open(filename)
 	if err != nil {
 		fmt.Println("Unable to open file! ", err)
 		panic(exit{1})
@@ -62,5 +58,28 @@ func main() {
 		fmt.Sscanf(line, "%d %d %d\n", &u, &v, &weight)
 		graph.InsertEdge(u, v, weight)
 	}
-	fmt.Println(graph)
+	return graph
+}
+
+func main() {
+	defer handleExit()
+	var root int = 0
+	var err error
+	if len(os.Args) < 2 {
+		fmt.Println("Please supply a filename as an argument")
+		panic(exit{1})
+	} else if len(os.Args) < 3 {
+		fmt.Println("No root node specified, defaulting to zero")
+	} else {
+		root, err = strconv.Atoi(os.Args[2])
+		if err != nil {
+			fmt.Println("Unable to convert second argument to number: ", err)
+			panic(exit{1})
+		}
+	}
+
+	graph := setupGraph(os.Args[1])
+	table := graph.FindShortestPathTree(root)
+
+	fmt.Println(table)
 }
