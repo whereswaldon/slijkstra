@@ -71,6 +71,25 @@ func (g *Graph) FindShortestPathTree(rootVertex int) *Table {
 		if table.Visited(current) {
 			continue // skip evaluation
 		}
+		for edge := g.AdjacencyLists[current].Front(); edge != nil; edge = edge.Next() {
+			concrete := edge.Value.(*Edge)
+			// ensure that we don't assume which is U and which is V
+			other := concrete.U
+			if other == current {
+				other = concrete.V
+			}
+			// skip this edge if we've been to the other end
+			if table.Visited(other) {
+				continue
+			}
+			// if it is unseen, give it the current distance
+			if table.Distance(other) < 0 ||
+				table.Distance(other) > table.Distance(current)+concrete.Weight {
+				table.Set(other, table.Distance(current)+concrete.Weight, current)
+			}
+			q.Enqueue(WeightedVertex{Vertex: other, Weight: table.Distance(other)})
+		}
+		table.Visit(current)
 	}
 	return table
 }
