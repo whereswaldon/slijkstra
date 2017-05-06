@@ -3,7 +3,7 @@ package main
 import (
 	"bufio"
 	"fmt"
-	. "github.com/whereswaldon/dijkstra/alg"
+	. "github.com/whereswaldon/slijkstra/alg"
 	"io"
 	"os"
 	"strconv"
