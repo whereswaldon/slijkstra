@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"fmt"
+	. "github.com/whereswaldon/dijkstra/alg"
 	"io"
 	"os"
 	"strconv"
@@ -82,4 +83,7 @@ func main() {
 	table := graph.FindShortestPathTree(root)
 
 	fmt.Println(table)
+	fmt.Println("Max distance: ", table.MaxDistance, " from ", table.Root, " to ", table.FurthestNode)
+	s, e, d := graph.FindDiameter()
+	fmt.Println("diameter: ", d, " start: ", s, " end: ", e)
 }

@@ -1,4 +1,4 @@
-package main
+package alg
 
 import (
 	"container/list"
@@ -59,7 +59,7 @@ func (g *Graph) String() string {
 
 func (g *Graph) FindShortestPathTree(rootVertex int) *Table {
 	// create a new empty table
-	table := NewTable(g.Order)
+	table := NewTable(g.Order, rootVertex)
 	// create a new empty priority queue
 	q := pqueue.New(g.Order)
 	// Set the root vertex to have no parent and have distance 0
@@ -94,6 +94,24 @@ func (g *Graph) FindShortestPathTree(rootVertex int) *Table {
 	return table
 }
 
+// Find diameter returns the starting point, ending point, and distance of the
+// shortest-path that defines the diameter of the graph
+func (g *Graph) FindDiameter() (startNode, endNode, distance int) {
+	currentTable := g.FindShortestPathTree(0)
+	startNode = currentTable.Root
+	endNode = currentTable.FurthestNode
+	distance = currentTable.MaxDistance
+	for i := 1; i < g.Order; i++ {
+		currentTable = g.FindShortestPathTree(i)
+		if currentTable.MaxDistance > distance {
+			startNode = currentTable.Root
+			endNode = currentTable.FurthestNode
+			distance = currentTable.MaxDistance
+		}
+	}
+	return
+}
+
 type WeightedVertex struct {
 	Vertex int
 	Weight int
@@ -106,21 +124,25 @@ func (w WeightedVertex) Less(o interface{}) bool {
 // Table represents the progress of a run of the shortest path
 // tree algorithm
 type Table struct {
-	visited  []bool
-	distance []int
-	parent   []int
+	MaxDistance, Root, FurthestNode int
+	visited                         []bool
+	distance                        []int
+	parent                          []int
 }
 
 // NewTable creates a new empty table
-func NewTable(order int) *Table {
+func NewTable(order, root int) *Table {
 	distance := make([]int, order)
 	for i := range distance {
 		distance[i] = -1
 	}
 	return &Table{
-		visited:  make([]bool, order),
-		distance: distance,
-		parent:   make([]int, order),
+		Root:         root,
+		FurthestNode: root,
+		MaxDistance:  0,
+		visited:      make([]bool, order),
+		distance:     distance,
+		parent:       make([]int, order),
 	}
 }
 
@@ -132,6 +154,10 @@ func (t *Table) Visited(vertex int) bool {
 
 // Visit marks a vertex as visited
 func (t *Table) Visit(vertex int) {
+	if t.distance[vertex] > t.MaxDistance {
+		t.MaxDistance = t.distance[vertex]
+		t.FurthestNode = vertex
+	}
 	t.visited[vertex] = true
 }
 
