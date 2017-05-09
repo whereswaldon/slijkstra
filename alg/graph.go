@@ -35,6 +35,26 @@ func NewGraph(order int) *Graph {
 	}
 }
 
+// SubgraphSlice creates a subgraph consisting of solely
+// the verticies between startNode and endNode and the edges
+// that connect them
+func (g *Graph) SubgraphSlice(startNode, endNode int) *Graph {
+	newGraph := NewGraph(endNode - startNode + 1)
+	for i, list := range g.AdjacencyLists {
+		if i < startNode || i > endNode {
+			continue
+		}
+		for cursor := list.Front(); cursor != nil; cursor = cursor.Next() {
+			edge := cursor.Value.(*Edge)
+			if edge.U < startNode || edge.V < startNode || edge.U > endNode || edge.V > endNode {
+				continue
+			}
+			newGraph.InsertEdge(edge.U-startNode, edge.V-startNode, edge.Weight)
+		}
+	}
+	return newGraph
+}
+
 // InsertEdge adds the provded edge to the adjacency lists of
 // both of its end points.
 func (g *Graph) InsertEdge(u, v, weight int) {
@@ -107,9 +127,11 @@ func (g *Graph) FindShortestPathTree(rootVertex int) *Table {
 }
 
 // Find diameter returns the starting point, ending point, and distance of the
-// shortest-path that defines the diameter of the graph
-func (g *Graph) FindDiameter() (startNode, endNode, distance int) {
-	currentTable := g.FindShortestPathTree(0)
+// shortest-path that defines the diameter of the graph. The root argument
+// can be used to adjust where the algorithm begins, which allows you to
+// run it on multiple components of a graph.
+func (g *Graph) FindDiameter(root int) (startNode, endNode, distance int) {
+	currentTable := g.FindShortestPathTree(root)
 	startNode = currentTable.Root
 	endNode = currentTable.FurthestNode
 	distance = currentTable.MaxDistance
