@@ -43,6 +43,18 @@ func (g *Graph) InsertEdge(u, v, weight int) {
 	g.AdjacencyLists[v].PushBack(edge)
 }
 
+// HasEdge returns true if the two given nodes are connected
+func (g *Graph) HasEdge(u, v int) bool {
+	list := g.AdjacencyLists[u]
+	for cursor := list.Front(); cursor != nil; cursor = cursor.Next() {
+		edge := cursor.Value.(*Edge)
+		if (edge.V == v && edge.U == u) || (edge.V == u && edge.U == v) {
+			return true
+		}
+	}
+	return false
+}
+
 func (g *Graph) String() string {
 	res := fmt.Sprintf("Order: %d\n", g.Order)
 	for i, l := range g.AdjacencyLists {
